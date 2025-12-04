@@ -3,7 +3,7 @@
 const GOOGLE_CLIENT_ID = '926752189712-erj4stvbi8rvbf15m4pt6361friqgv0g.apps.googleusercontent.com';
 
 // Google Gemini API Key - Dapatkan dari: https://makersuite.google.com/app/apikey
-const GEMINI_API_KEY = 'AIzaSyB-5yVKdiI-G6RAXTGzaULUkYrrhGTermA';
+const GEMINI_API_KEY = 'AIzaSyA1MWHRnqBv-wB8x6lFi5hhe4NdcXXm1VA';
 // =======================
 
 let currentUser = null;
@@ -529,3 +529,4 @@ setTimeout(() => {
         document.getElementById('userInput').focus();
     }
 }, 500);
+
