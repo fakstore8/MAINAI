@@ -66,7 +66,8 @@ async function callGeminiAPI(userMessage) {
         parts: [{ text: userMessage }]
     });
 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+    // Gunakan model terbaru: gemini-1.5-flash atau gemini-1.5-pro
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
     try {
         const response = await fetch(apiUrl, {
@@ -493,7 +494,21 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
 });
 
 document.getElementById('menuBtn').addEventListener('click', () => {
-    document.getElementById('sidebar').classList.toggle('collapsed');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    
+    sidebar.classList.toggle('collapsed');
+    
+    // Toggle overlay untuk mobile
+    if (window.innerWidth <= 768) {
+        overlay.classList.toggle('active');
+    }
+});
+
+// Tutup sidebar saat overlay diklik (mobile)
+document.getElementById('sidebarOverlay').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.add('collapsed');
+    document.getElementById('sidebarOverlay').classList.remove('active');
 });
 
 document.getElementById('newChatBtn').addEventListener('click', () => {
