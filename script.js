@@ -3,7 +3,7 @@
 const GOOGLE_CLIENT_ID = '926752189712-erj4stvbi8rvbf15m4pt6361friqgv0g.apps.googleusercontent.com';
 
 // Google Gemini API Key - Dapatkan dari: https://makersuite.google.com/app/apikey
-const GEMINI_API_KEY = 'AIzaSyA1MWHRnqBv-wB8x6lFi5hhe4NdcXXm1VA';
+const GEMINI_API_KEY = 'AIzaSyC8IWaz0q_yTMTRvHPl1Bt5hXXXsG4zgmQ';
 // =======================
 
 let currentUser = null;
@@ -66,8 +66,8 @@ async function callGeminiAPI(userMessage) {
         parts: [{ text: userMessage }]
     });
 
-    // Gunakan model terbaru: gemini-1.5-flash atau gemini-1.5-pro
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    // Gunakan endpoint v1 (bukan v1beta) dengan model gemini-pro
+    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
 
     try {
         const response = await fetch(apiUrl, {
@@ -79,8 +79,8 @@ async function callGeminiAPI(userMessage) {
                 contents: conversationHistory,
                 generationConfig: {
                     temperature: 0.9,
-                    topK: 1,
-                    topP: 1,
+                    topK: 40,
+                    topP: 0.95,
                     maxOutputTokens: 2048,
                 },
                 safetySettings: [
@@ -106,10 +106,12 @@ async function callGeminiAPI(userMessage) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.error?.message || 'API request failed');
+            console.error('API Error Details:', errorData);
+            throw new Error(errorData.error?.message || `HTTP ${response.status}: ${response.statusText}`);
         }
 
         const data = await response.json();
+        console.log('API Response:', data);
         
         if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
             throw new Error('Invalid response from Gemini API');
@@ -456,8 +458,14 @@ async function sendMessage() {
             errorMessage += 'API Key tidak valid. Silakan periksa konfigurasi Gemini API Key Anda.';
         } else if (error.message.includes('dikonfigurasi')) {
             errorMessage += error.message;
-        } else if (error.message.includes('quota')) {
+        } else if (error.message.includes('quota') || error.message.includes('RESOURCE_EXHAUSTED')) {
             errorMessage += 'Kuota API telah habis. Silakan tunggu atau upgrade akun Anda.';
+        } else if (error.message.includes('429')) {
+            errorMessage += 'Terlalu banyak request. Silakan tunggu beberapa saat.';
+        } else if (error.message.includes('403')) {
+            errorMessage += 'API Key tidak memiliki akses. Pastikan API Key Anda aktif di Google AI Studio.';
+        } else if (error.message.includes('404') || error.message.includes('not found')) {
+            errorMessage += 'Model tidak ditemukan. Coba refresh halaman atau periksa API Key Anda.';
         } else {
             errorMessage += 'Silakan coba lagi. Error: ' + error.message;
         }
@@ -529,4 +537,3 @@ setTimeout(() => {
         document.getElementById('userInput').focus();
     }
 }, 500);
-
